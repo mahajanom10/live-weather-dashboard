@@ -1,0 +1,5 @@
+city,temperature_c,humidity_percent,wind_speed_m_s,weather,description,datetime_utc
+Mumbai,29.8,74,4.41,Clouds,broken clouds,2025-05-16 07:05:00
+Delhi,43.07,10,4.7,Clear,clear sky,2025-05-16 07:05:42
+London,9.83,87,2.24,Clear,clear sky,2025-05-16 07:03:25
+New York,16.3,95,1.79,Clouds,few clouds,2025-05-16 07:07:54
