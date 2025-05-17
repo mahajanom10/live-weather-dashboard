@@ -92,8 +92,14 @@ import os
 status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
 if status.stdout.strip():
     subprocess.run(["git", "commit", "-m", "Update live_weather.csv"], check=True)
-    token = os.environ.get("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")  # GH_TOKEN is your GitHub secret
-    repo_url = f"https://mahajanom10:{token}@github.com/mahajanom10/live-weather-dashboard.git"
+    # Get your token from env variables (set this in your GitHub Actions secrets)
+    GH_TOKEN = os.getenv("GH_TOKEN")
+
+    # Repo URL with token authentication
+    repo_url = f"https://x-access-token:{GH_TOKEN}@github.com/mahajanom10/live-weather-dashboard.git"
+
+    # Push with token-authenticated URL
+    subprocess.run(["git", "push", repo_url, "main"], check=True)
 
     subprocess.run(["git", "push", repo_url, "main"], check=True)
     print("Changes pushed to GitHub.")
