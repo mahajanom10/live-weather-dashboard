@@ -105,16 +105,23 @@ subprocess.run(["git", "config", "--global", "user.name", "mahajanom10"], check=
 subprocess.run(["git", "add", "data/live_weather.csv"], check=True)
 # Move the file to correct folder
 # Move the updated CSV file to the correct path
+import subprocess
+import os
+
+# Step 1: Move the updated file
 subprocess.run(["mv", "live-weather-dashboard/data/live_weather.csv", "data/live_weather.csv"], check=True)
 
- # Step 2: Optional - remove old folder if it exists and is tracked by git
+# Step 2: Optional - remove old folder if it exists and is tracked by git
 try:
     subprocess.run(["git", "rm", "-r", "live-weather-dashboard/data"], check=True)
 except subprocess.CalledProcessError:
     print("Skipping git rm: Folder not found or not tracked.")
 
-# Commit changes
+# Step 3: Stage the updated CSV file
+subprocess.run(["git", "add", "data/live_weather.csv"], check=True)
+
+# Step 4: Commit the changes
 subprocess.run(["git", "commit", "-m", "Update live_weather.csv"], check=True)
 
-# Push to GitHub
+# Step 5: Push the changes to GitHub
 subprocess.run(["git", "push", "origin", "main"], check=True)
