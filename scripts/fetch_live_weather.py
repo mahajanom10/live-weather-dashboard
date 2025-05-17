@@ -87,12 +87,15 @@ subprocess.run(["mv", "data/live_weather.csv", "live-weather-dashboard/data/live
 os.chdir("live-weather-dashboard")
 
 subprocess.run(["git", "add", "data/live_weather.csv"], check=True)
-
+import os 
 # Check for changes before committing
 status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
 if status.stdout.strip():
     subprocess.run(["git", "commit", "-m", "Update live_weather.csv"], check=True)
-    subprocess.run(["git", "push", "origin", "main"], check=True)
+    token = os.environ.get("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")  # GH_TOKEN is your GitHub secret
+    repo_url = f"https://mahajanom10:{token}@github.com/mahajanom10/live-weather-dashboard.git"
+
+    subprocess.run(["git", "push", repo_url, "main"], check=True)
     print("Changes pushed to GitHub.")
 else:
     print("No changes to commit.")
