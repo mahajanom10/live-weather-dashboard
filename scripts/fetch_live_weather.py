@@ -18,8 +18,14 @@ This notebook fetches live weather data from OpenWeatherMap API for a list of ci
 
 ---
 """
+import subprocess
 
-!git clone https://github.com/mahajanom10/live-weather-dashboard.git
+subprocess.run(
+    ["git", "clone", "https://github.com/mahajanom10/live-weather-dashboard.git"],
+    check=True
+)
+
+
 
 import os
 import pandas as pd
@@ -92,14 +98,20 @@ print(" live_weather.csv saved inside repo folder.")
 """
 
 # Git config
-!git config --global user.email "mahajanom1121@gmail.com"
-!git config --global user.name "mahajanom10"
-
+subprocess.run(["git", "config", "--global", "user.email", "mahajanom1121@gmail.com"], check=True)
+subprocess.run(["git", "config", "--global", "user.name", "mahajanom10"], check=True)
 """Move to repo folder and pull latest changes:"""
 
-!git add data/live_weather.csv
+subprocess.run(["git", "add", "data/live_weather.csv"], check=True)
 # Move the file to correct folder
-!mv live-weather-dashboard/data/live_weather.csv data/live_weather.csv
-!git rm -r live-weather-dashboard/data
-!git commit -m "Update live_weather.csv"
-!git push origin main
+# Move the updated CSV file to the correct path
+subprocess.run(["mv", "live-weather-dashboard/data/live_weather.csv", "data/live_weather.csv"], check=True)
+
+# Remove the old folder (if needed)
+subprocess.run(["git", "rm", "-r", "live-weather-dashboard/data"], check=True)
+
+# Commit changes
+subprocess.run(["git", "commit", "-m", "Update live_weather.csv"], check=True)
+
+# Push to GitHub
+subprocess.run(["git", "push", "origin", "main"], check=True)
