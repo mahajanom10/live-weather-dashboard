@@ -1,19 +1,17 @@
-name: Update Live Weather CSV
+name: Update Weather Data
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour
-  workflow_dispatch:     # Allow manual trigger
+    - cron: '0 * * * *'  # every hour
+  workflow_dispatch:
 
 jobs:
-  update-weather:
+  update-data:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_TOKEN }}   # <== THIS IS CRUCIAL!
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -21,15 +19,22 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install requests pandas
 
-      - name: Run weather fetch script
-        run: python scripts/fetch_live_weather.py
+      - name: Run data fetch script
+        run: python notebooks/fetch_weather_data.py
 
-      - name: Commit and push changes
+      - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/live_weather.csv
+
+      - name: Pull latest changes
+        run: |
+          git pull origin main --rebase
+
+      - name: Commit and Push Changes
+        run: |
+          git add data/weather_data.csv
           git commit -m "Update weather data [auto]" || echo "No changes to commit"
-          git push origin main
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/mahajanom10/live-weather-dashboard.git HEAD:main
