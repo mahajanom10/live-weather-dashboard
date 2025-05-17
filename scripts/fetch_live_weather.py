@@ -20,30 +20,26 @@ This notebook fetches live weather data from OpenWeatherMap API for a list of ci
 """
 # Live Weather Dashboard Project: Fetch Live Weather Data
 
-import subprocess
+# scripts/fetch_live_weather.py
+
 import os
 import pandas as pd
 import requests
 from datetime import datetime
 
-# Step 1: Clone the GitHub repo
-subprocess.run(
-    ["git", "clone", "https://github.com/mahajanom10/live-weather-dashboard.git"],
-    check=True
-)
-
-# Step 2: Load city list
+# Load cities from GitHub raw CSV
 cities_url = "https://raw.githubusercontent.com/mahajanom10/live-weather-dashboard/main/data/cities.csv"
 cities_df = pd.read_csv(cities_url)
 print("Cities loaded:")
-print(cities_df)
+print(cities_df.head())
 
-# Step 3: Fetch weather data
-API_KEY = "2247c8827c0393e8ae7eb97c42183231"  # Use your key
+# OpenWeatherMap API config
+API_KEY = "YOUR_API_KEY_HERE"  # <-- Replace with your real key or use GitHub Secret instead
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 weather_data = []
 
+# Fetch weather for each city
 for city in cities_df['city']:
     params = {
         "q": city,
@@ -54,7 +50,7 @@ for city in cities_df['city']:
     data = response.json()
 
     if data.get('cod') == 200:
-        weather_data.append({
+        weather_info = {
             "city": city,
             "temperature_c": data['main']['temp'],
             "humidity_percent": data['main']['humidity'],
@@ -62,47 +58,17 @@ for city in cities_df['city']:
             "weather": data['weather'][0]['main'],
             "description": data['weather'][0]['description'],
             "datetime_utc": datetime.utcfromtimestamp(data['dt']).strftime('%Y-%m-%d %H:%M:%S')
-        })
+        }
+        weather_data.append(weather_info)
     else:
         print(f"Failed for {city}: {data.get('message')}")
 
-# Step 4: Save data into the right folder
-df = pd.DataFrame(weather_data)
+# Convert to DataFrame
+weather_df = pd.DataFrame(weather_data)
 print("Weather DataFrame created:")
-print(df)
+print(weather_df.head())
 
+# Ensure folder exists and save CSV
 os.makedirs("data", exist_ok=True)
-df.to_csv("data/live_weather.csv", index=False)
-print("Saved updated data to data/live_weather.csv")
-
-# Step 5: GitHub Configuration
-subprocess.run(["git", "config", "--global", "user.email", "mahajanom1121@gmail.com"], check=True)
-subprocess.run(["git", "config", "--global", "user.name", "mahajanom10"], check=True)
-
-# Step 6: Move updated CSV into cloned repo
-os.makedirs("live-weather-dashboard/data", exist_ok=True)
-subprocess.run(["mv", "data/live_weather.csv", "live-weather-dashboard/data/live_weather.csv"], check=True)
-
-# Step 7: Commit and push if changes
-os.chdir("live-weather-dashboard")
-
-subprocess.run(["git", "add", "data/live_weather.csv"], check=True)
-import os 
-# Check for changes before committing
-status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
-if status.stdout.strip():
-    subprocess.run(["git", "commit", "-m", "Update live_weather.csv"], check=True)
-    # Get your token from env variables (set this in your GitHub Actions secrets)
-    GH_TOKEN = os.getenv("GH_TOKEN")
-
-    # Repo URL with token authentication
-    repo_url = f"https://x-access-token:{GH_TOKEN}@github.com/mahajanom10/live-weather-dashboard.git"
-
-    # Push with token-authenticated URL
-    subprocess.run(["git", "push", repo_url, "main"], check=True)
-
-    subprocess.run(["git", "push", repo_url, "main"], check=True)
-    print("Changes pushed to GitHub.")
-else:
-    print("No changes to commit.")
-
+weather_df.to_csv("data/live_weather.csv", index=False)
+print("✅ Saved updated data to data/live_weather.csv")
