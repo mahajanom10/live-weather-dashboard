@@ -18,37 +18,28 @@ This notebook fetches live weather data from OpenWeatherMap API for a list of ci
 
 ---
 """
+# Live Weather Dashboard Project: Fetch Live Weather Data
+
 import subprocess
-
-subprocess.run(
-    ["git", "clone", "https://github.com/mahajanom10/live-weather-dashboard.git"],
-    check=True
-)
-
-
-
 import os
 import pandas as pd
 import requests
 from datetime import datetime
 
-# Commented out IPython magic to ensure Python compatibility.
-# %cd live-weather-dashboard
+# Step 1: Clone the GitHub repo
+subprocess.run(
+    ["git", "clone", "https://github.com/mahajanom10/live-weather-dashboard.git"],
+    check=True
+)
 
-"""## Load city list
-
-"""
-
+# Step 2: Load city list
 cities_url = "https://raw.githubusercontent.com/mahajanom10/live-weather-dashboard/main/data/cities.csv"
 cities_df = pd.read_csv(cities_url)
 print("Cities loaded:")
-print(cities_df.head())
+print(cities_df)
 
-"""## Fetch Weather Data from OpenWeatherMap API
-For each city, fetch temperature, humidity, wind speed, weather condition, and timestamp.
-"""
-
-API_KEY = "2247c8827c0393e8ae7eb97c42183231"  # Replace with your actual key
+# Step 3: Fetch weather data
+API_KEY = "2247c8827c0393e8ae7eb97c42183231"  # Use your key
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 weather_data = []
@@ -63,7 +54,7 @@ for city in cities_df['city']:
     data = response.json()
 
     if data.get('cod') == 200:
-        weather_info = {
+        weather_data.append({
             "city": city,
             "temperature_c": data['main']['temp'],
             "humidity_percent": data['main']['humidity'],
@@ -71,57 +62,38 @@ for city in cities_df['city']:
             "weather": data['weather'][0]['main'],
             "description": data['weather'][0]['description'],
             "datetime_utc": datetime.utcfromtimestamp(data['dt']).strftime('%Y-%m-%d %H:%M:%S')
-        }
-        weather_data.append(weather_info)
+        })
     else:
         print(f"Failed for {city}: {data.get('message')}")
 
-"""create dataframe"""
-
-weather_df = pd.DataFrame(weather_data)
+# Step 4: Save data into the right folder
+df = pd.DataFrame(weather_data)
 print("Weather DataFrame created:")
-print(weather_df.head())
+print(df)
 
-# Ensure 'data/' folder exists in the repo
 os.makedirs("data", exist_ok=True)
+df.to_csv("data/live_weather.csv", index=False)
+print("Saved updated data to data/live_weather.csv")
 
-"""## Save the weather data locally in  repo structure
-
-
-"""
-
-weather_df.to_csv("data/live_weather.csv", index=False)
-print(" live_weather.csv saved inside repo folder.")
-
-"""## GitHub Integration Commands
-
-"""
-
-# Git config
+# Step 5: GitHub Configuration
 subprocess.run(["git", "config", "--global", "user.email", "mahajanom1121@gmail.com"], check=True)
 subprocess.run(["git", "config", "--global", "user.name", "mahajanom10"], check=True)
-"""Move to repo folder and pull latest changes:"""
+
+# Step 6: Move updated CSV into cloned repo
+os.makedirs("live-weather-dashboard/data", exist_ok=True)
+subprocess.run(["mv", "data/live_weather.csv", "live-weather-dashboard/data/live_weather.csv"], check=True)
+
+# Step 7: Commit and push if changes
+os.chdir("live-weather-dashboard")
 
 subprocess.run(["git", "add", "data/live_weather.csv"], check=True)
-# Move the file to correct folder
-# Move the updated CSV file to the correct path
-import subprocess
-import os
 
-# Step 1: Move the updated file
-subprocess.run(["mv", "live-weather-dashboard/data/live_weather.csv", "data/live_weather.csv"], check=True)
+# Check for changes before committing
+status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
+if status.stdout.strip():
+    subprocess.run(["git", "commit", "-m", "Update live_weather.csv"], check=True)
+    subprocess.run(["git", "push", "origin", "main"], check=True)
+    print("Changes pushed to GitHub.")
+else:
+    print("No changes to commit.")
 
-# Step 2: Optional - remove old folder if it exists and is tracked by git
-try:
-    subprocess.run(["git", "rm", "-r", "live-weather-dashboard/data"], check=True)
-except subprocess.CalledProcessError:
-    print("Skipping git rm: Folder not found or not tracked.")
-
-# Step 3: Stage the updated CSV file
-subprocess.run(["git", "add", "data/live_weather.csv"], check=True)
-
-# Step 4: Commit the changes
-subprocess.run(["git", "commit", "-m", "Update live_weather.csv"], check=True)
-
-# Step 5: Push the changes to GitHub
-subprocess.run(["git", "push", "origin", "main"], check=True)
