@@ -2,16 +2,12 @@ name: Update Live Weather CSV
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour
-  workflow_dispatch:     # Allow manual trigger
+    - cron: '0 * * * *'  # Runs every hour
+  workflow_dispatch:     # Manual trigger option
 
 jobs:
   update-weather:
     runs-on: ubuntu-latest
-
-    env:
-      # Pass the GitHub token secret as an env variable
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
       - name: Checkout repo
@@ -23,22 +19,17 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run weather fetch script
         run: python scripts/fetch_live_weather.py
 
       - name: Commit and push changes
         env:
-          # Use GH_TOKEN in this step as well
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add data/live_weather.csv
           git commit -m "Update weather data [auto]" || echo "No changes to commit"
-
-          # Push using GH_TOKEN for authentication
-          git push https://x-access-token:${GH_TOKEN}@github.com/mahajanom10/live-weather-dashboard.git main
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/mahajanom10/live-weather-dashboard.git HEAD:main
