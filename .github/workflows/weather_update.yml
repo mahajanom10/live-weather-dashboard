@@ -36,5 +36,6 @@ jobs:
 
           git pull --rebase https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/mahajanom10/live-weather-dashboard.git main || true
           git add data/live_weather.csv
-          git commit -m "Update weather data [auto]" || echo "No changes to commit"
+          git pull --rebase https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/mahajanom10/live-weather-dashboard.git main || true
           git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/mahajanom10/live-weather-dashboard.git HEAD:main
+
