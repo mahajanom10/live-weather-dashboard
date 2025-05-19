@@ -2,18 +2,18 @@ name: update-weather
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Every hour
+    - cron: "0 * * * *"  # Runs every hour
   workflow_dispatch:
-  
+
 permissions:
-  contents: write
-  
+  contents: write  # Required to push changes to the repo
+
 jobs:
   fetch-and-update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
@@ -34,9 +34,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Pull with rebase to avoid rejection
-          git pull --rebase origin main
+          # Pull latest changes securely to avoid push rejection
+          git pull --rebase https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} main
 
           git add data/live_weather.csv
           git commit -m "Update weather data [auto]" || echo "No changes to commit"
+
+          # Push using the GitHub token
           git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} HEAD:main
