@@ -2,11 +2,11 @@ name: update-weather
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Runs every hour
+    - cron: "0 * * * *"  # Every hour
   workflow_dispatch:
 
 permissions:
-  contents: write  # Required to push changes to the repo
+  contents: write
 
 jobs:
   fetch-and-update:
@@ -34,11 +34,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Pull latest changes securely to avoid push rejection
-          git pull --rebase https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} main
-
+          git pull --rebase https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/mahajanom10/live-weather-dashboard.git main || true
           git add data/live_weather.csv
           git commit -m "Update weather data [auto]" || echo "No changes to commit"
-
-          # Push using the GitHub token
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} HEAD:main
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/mahajanom10/live-weather-dashboard.git HEAD:main
